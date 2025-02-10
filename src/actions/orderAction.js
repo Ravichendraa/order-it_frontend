@@ -49,7 +49,7 @@ export const payment = (items, restaurant) => async (dispatch) => {
         const config = {
             headers: { "Content-Type": "application/json" },
         };
-        const { data } = await axios.post("${apiURL}/api/v1/payment/process",
+        const { data } = await axios.post(`${apiURL}/api/v1/payment/process`,
             {
                 items,
                 restaurant,
@@ -73,7 +73,7 @@ export const myOrders = () => async (dispatch) => {
         dispatch({
             type: MY_ORDER_REQUEST,
         });
-        const { data } = await axios.get("${apiURL}/api/v1/eats/orders/me/myOrders");
+        const { data } = await axios.get(`${apiURL}/api/v1/eats/orders/me/myOrders`);
         dispatch({
             type: MY_ORDER_SUCCESS,
             payload: data.orders,
