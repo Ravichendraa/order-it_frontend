@@ -82,7 +82,7 @@ export const loadUser =() => async (dispatch)=>{
         });
     }
 };
-//uopdate user
+//update user
 
 export const updateProfile=(userData)=>async(dispatch)=>{
     try{
