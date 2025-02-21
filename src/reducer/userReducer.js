@@ -1,13 +1,11 @@
-//reducer for managing autentication realted state
 
-//import { CLEAR_ERROR } from "../constants/restaurantConstant";
 import { CLEAR_ERRORS, FORGOT_PASSWORD_FAIL, FORGOT_PASSWORD_REQUEST, FORGOT_PASSWORD_SUCCESS, LOAD_USER_FAIL, LOAD_USER_REQUEST, LOAD_USER_SUCCESS, LOGIN_FAIL, LOGIN_REQUEST, LOGIN_SUCCESS, LOGOUT_FAIL, LOGOUT_SUCCESS, NEW_PASSWORD_FAIL, NEW_PASSWORD_REQUEST, NEW_PASSWORD_SUCCESS, REGISTER_USER_FAIL, REGISTER_USER_REQUEST, REGISTER_USER_SUCCESS, UPDATE_PASSWORD_FAIL, UPDATE_PASSWORD_REQUEST, UPDATE_PASSWORD_RESET, UPDATE_PASSWORD_SUCCESS, UPDATE_PROFILE_FAIL, UPDATE_PROFILE_REQUEST, UPDATE_PROFILE_RESET, UPDATE_PROFILE_SUCCESS } from "../constants/userConstant";
 
 export const authReducer = (
     state = {
-        user: null,
+        user: JSON.parse(localStorage.getItem("user")) || null,  // Load user from localStorage
         loading: false,
-        isAuthenticated: false,
+        isAuthenticated: !!localStorage.getItem("user"),  // Check if user exists
         data: {},
     },
     action) => {
@@ -24,6 +22,7 @@ export const authReducer = (
         case LOGIN_SUCCESS:
         case REGISTER_USER_SUCCESS:
         case LOAD_USER_SUCCESS:
+            localStorage.setItem("user", JSON.stringify(action.payload));
             return {
                 ...state,
                 loading: false,
@@ -32,6 +31,7 @@ export const authReducer = (
             };
 
         case LOGOUT_SUCCESS:
+            localStorage.removeItem("user");
             return {
                 ...state,
                 loading: false,

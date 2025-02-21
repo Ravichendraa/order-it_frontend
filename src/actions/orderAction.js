@@ -17,6 +17,15 @@ import {
 } from "../constants/orderConstant";
 
 const apiURL = process.env.REACT_APP_API_URL;
+const getAuthHeaders = () => {
+    const token = localStorage.getItem("token"); // Modify based on where you store the token
+    return {
+        headers: {
+            "Content-Type": "application/json",
+            ...(token && { Authorization: `Bearer ${token} `})
+    }
+ };
+};
 
 
 export const createOrder = (session_id) => async (dispatch) => {
@@ -24,13 +33,13 @@ export const createOrder = (session_id) => async (dispatch) => {
         dispatch({
             type: CREATE_ORDER_REQUEST,
         });
-        const config = {
-            headers: { "Content-Type": "application/json" },
-        };
+        // const config = {
+        //     headers: { "Content-Type": "application/json" },
+        // };
         const { data } = await axios.post(
             "${apiURL}/api/v1/eats/orders/new",
              { session_id }, 
-             config);
+             getAuthHeaders());
         dispatch({
             type: CREATE_ORDER_SUCCESS,
             payload: data,
@@ -38,7 +47,7 @@ export const createOrder = (session_id) => async (dispatch) => {
     } catch (error) {
         dispatch({
             type: CREATE_ORDER_FAIL,
-            payload: error.response.data.message
+            payload: error.response?.data?.message||"Failed to create order",
         });
     }
 };
@@ -46,15 +55,15 @@ export const createOrder = (session_id) => async (dispatch) => {
 export const payment = (items, restaurant) => async (dispatch) => {
     try {
         dispatch({ type: CREATE_PAYMENT_REQUEST });
-        const config = {
-            headers: { "Content-Type": "application/json" },
-        };
+        // const config = {
+        //     headers: { "Content-Type": "application/json" },
+        // };
         const { data } = await axios.post(`${apiURL}/api/v1/payment/process`,
             {
                 items,
                 restaurant,
             },
-            config
+            getAuthHeaders()
         );
         if (data.url) {
             window.location.href = data.url;
@@ -62,7 +71,7 @@ export const payment = (items, restaurant) => async (dispatch) => {
     } catch (error) {
         dispatch({
             type: CREATE_PAYMENT_FAIL,
-            payload: error.response.data.message
+            payload: error.response?.data?.message || "Failed to process payment",
         });
     }
 };
@@ -73,7 +82,7 @@ export const myOrders = () => async (dispatch) => {
         dispatch({
             type: MY_ORDER_REQUEST,
         });
-        const { data } = await axios.get(`${apiURL}/api/v1/eats/orders/me/myOrders`);
+        const { data } = await axios.get(`${apiURL}/api/v1/eats/orders/me/myOrders`,getAuthHeaders());
         dispatch({
             type: MY_ORDER_SUCCESS,
             payload: data.orders,
@@ -81,7 +90,7 @@ export const myOrders = () => async (dispatch) => {
     } catch (error) {
         dispatch({
             type: MY_ORDER_FAIL,
-            payload: error.response.data.message,
+            payload: error.response?.data?.message|| "Failed to get orders",
         });
     }
 };
@@ -93,7 +102,7 @@ export const getOrderDetails = (id) => async (dispatch) => {
 
         dispatch({ type: ORDER_DETAILS_REQUEST });
 
-        const { data } = await axios.get(`${apiURL}/api/v1/eats/orders/${id}`);
+        const { data } = await axios.get(`${apiURL}/api/v1/eats/orders/${id}`,getAuthHeaders());
 
         dispatch({
 
@@ -109,7 +118,7 @@ export const getOrderDetails = (id) => async (dispatch) => {
 
             type: ORDER_DETAILS_FAIL,
 
-            payload: error.response.data.message,
+            payload: error.response?.data?.message|| "Failed to get order details",
 
         });
     }

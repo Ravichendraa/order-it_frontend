@@ -5,7 +5,15 @@ import axios from "axios";
 //import { CLEAR_ERROR } from "../constants/restaurantConstant";
 const apiURL = process.env.REACT_APP_API_URL;
 
-
+const getAuthHeaders = () => {
+    const token = localStorage.getItem("token"); // Modify based on where you store the token
+    return {
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token} `,
+        }
+};
+};
 
 export const login=(email,password)=>async (dispatch)=>{
     try{
@@ -24,6 +32,7 @@ export const login=(email,password)=>async (dispatch)=>{
             type:LOGIN_SUCCESS,
             payload: data.data.user,
         });
+        localStorage.setItem("token", data.token);
     }catch(error){
         dispatch ({
             type:LOGIN_FAIL,
@@ -45,6 +54,7 @@ export const register=(userData)=>async (dispatch)=>{
             payload:data.data.user,
 
         });
+        localStorage.setItem("token", data.token);
         return data.data.user;
 
     }
@@ -60,7 +70,7 @@ export const register=(userData)=>async (dispatch)=>{
 export const loadUser =() => async (dispatch)=>{
     try{
         dispatch({ type: LOAD_USER_REQUEST});
-        const {data}=await axios.get(`${apiURL}/api/v1/users/me`);
+        const {data}=await axios.get(`${apiURL}/api/v1/users/me`,getAuthHeaders());
         dispatch({
             type:LOAD_USER_SUCCESS,
             payload:data.user,
@@ -80,6 +90,7 @@ export const updateProfile=(userData)=>async(dispatch)=>{
         const config={
             headers:{
                 "Content-Type":"multipart/form-data",
+                "Authorization": `Bearer ${localStorage.getItem("token")}`
             }
         };
         const {data}=await axios.put(
@@ -100,11 +111,12 @@ export const updateProfile=(userData)=>async(dispatch)=>{
 //logout
 export const logout=()=>async (dispatch)=>{
     try {
-        await axios.get(`${apiURL}/api/v1/users/logout`);
+        await axios.get(`${apiURL}/api/v1/users/logout`,getAuthHeaders());
         dispatch({
             type:LOGOUT_SUCCESS,
         });
         dispatch({type:CLEAR_CART});
+        localStorage.removeItem("token");
 
     }catch (error){
         dispatch({
@@ -122,15 +134,15 @@ export const clearErrors=()=>async(dispatch)=>{
 export const updatePassword=(passwords)=>async (dispatch)=>{
 try{
     dispatch({type:UPDATE_PASSWORD_REQUEST})
-    const config={
-        headers:{
-            "Content-Type":"application/json",
-        },
-    };
+    // const config={
+    //     headers:{
+    //         "Content-Type":"application/json",
+    //     },
+    // };
     const {data}=await axios.put(
         "${apiURL}/api/v1/users/password/update",
         passwords,
-        config,
+        getAuthHeaders()
     );
     dispatch({
         type:UPDATE_PASSWORD_SUCCESS,
@@ -180,14 +192,14 @@ export const resetPassword=(token,passwords)=>async(dispatch)=>{
             type:NEW_PASSWORD_REQUEST
 
         })
-        const config={
-            headers:{
-                "Content-Type":"application/json",
-        }
-        };
+        // const config={
+        //     headers:{
+        //         "Content-Type":"application/json",
+        // }
+        // };
         const {data}=await axios.patch(`${apiURL}/api/v1/users/resetPassword/${token}`,
         passwords,
-        config
+        getAuthHeaders()    
     );
     dispatch({
         type:NEW_PASSWORD_SUCCESS,
